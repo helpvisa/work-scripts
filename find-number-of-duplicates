@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+
+import argparse
+
+parser = argparse.ArgumentParser(
+    prog = "find-number-of-duplicates",
+    description = "Find duplicates of MD5 hashes in a .CSV file.")
+
+parser.add_argument('file', help = "Name of the .CSV file to be parsed.")
+
+args = parser.parse_args()
+entries = []
+
+
+class Entry:
+    def __init__(self, mdhash, filename):
+        self.mdhash = mdhash
+        self.filename = filename
+        self.count = 1
+
+
+def compare_entries(data):
+    for entry in entries:
+        if entry.mdhash == data[0]:
+            entry.count += 1
+            return
+    create_new_entry(data)
+
+
+def create_new_entry(data):
+    new_entry = Entry(data[0], data[1].replace("\n", ""))
+    entries.append(new_entry)
+
+
+try:
+    with open(args.file, mode="r", encoding="utf-8") as csv:
+        for index,line in enumerate(csv.readlines()):
+            if index == 0:
+                continue
+            data = line.split(",")
+            if len(entries) < 1:
+                create_new_entry(data)
+            else:
+                compare_entries(data)
+except OSError as error:
+    print("Error opening file:", error)
+
+# print our findings
+print("Hash,Filename,Number of Duplicate Files", end="\n")
+for entry in entries:
+    h = entry.mdhash
+    f = entry.filename
+    c = entry.count
+    print(f"{ h },{ f },{ c }", end="\n")

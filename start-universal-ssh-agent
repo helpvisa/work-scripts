@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# kill existing instances of ssh-agent
+killall ssh-agent
+# remove stale socket
+rm -f "$SSH_AUTH_SOCK"
+# restart ssh-agent with custom socket
+ssh-agent -a "$SSH_AUTH_SOCK" > /dev/null &

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+DATA=$(/home/dbrack01/Scripts/dupes $1)
+
+# echo "MD5 Hash,Path,Workspace,Resource Category,Filename"
+echo "MD5 Hash,File"
+/home/dbrack01/Scripts/dupes | while read l; do
+    hash=$(echo "$l" | cut -d" " -f1)
+    file=$(echo "$l" | cut -d" " -f3)
+    # path=$(echo "$l" | cut -d" " -f3 | sed 's/\/[a-zA-Z0-9]*\.[a-zA-Z0-9]*//')
+    # workspace=$(echo "$path" | cut -d"/" -f2)
+    # category=$(echo "$path" | cut -d"/" -f3)
+    # filename=$(echo "$l" | sed 's/.*\///')
+    # echo "$hash,$path,$workspace,$category,$filename"
+    echo "$hash,$file"
+done

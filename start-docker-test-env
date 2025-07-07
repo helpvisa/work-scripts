@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# acquire container name
+CONTAINER=$(docker container ls | grep custom/ubi9_sshd | tr -s ' ' | cut -d' ' -f2 | tail -n1)
+
+# start the container if it is not already running
+if [ -z "$CONTAINER" ]; then
+    echo "Starting testing container..."
+    docker run -d custom/ubi9_sshd
+    # remove known_hosts entry to avoid a bugaboo
+    ssh-keygen -f "/home/dbrack01/.ssh/known_hosts" -R '172.17.0.2'
+    echo "ssh into the testing container using 'root@172.17.0.2'"
+else
+    echo "Testing container already running!"
+fi

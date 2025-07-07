@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+    find . -name ".git" -prune -o -print | tail -n +2
+else
+    find . -name "$1" -prune -o -name ".git" -prune -o -print | tail -n +2
+fi

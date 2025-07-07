@@ -1,0 +1,8 @@
+#!/bin/sh
+# quickly get the current date
+
+if [ -z "$1" ]; then
+    date --rfc-3339=date
+else
+    date --rfc-3339=date -d "$1"
+fi

@@ -1,0 +1,12 @@
+#!/bin/sh
+# perform simple math operations without annoying bc scaffolding
+
+if [ -z "$1" ]; then
+    echo "Please specify something to calculate."
+else
+    EXPRESSION=""
+    for VAR in "$@"; do
+        EXPRESSION="$EXPRESSION $VAR"
+    done
+    echo "$EXPRESSION" | bc -l
+fi

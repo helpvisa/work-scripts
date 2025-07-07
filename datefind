@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+    echo "Please specify at least one date in the format 'yyyy-mm-dd'."
+elif [ -z "$2" ]; then
+    find . -type f -newermt "$1" -printf "%T+\t%p\n" | sort
+else
+    find . -type f -newermt "$1" ! -newermt "$2" -printf "%T+\t%p\n" | sort
+fi
