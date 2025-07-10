@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# colorize tty output
+C_ON=""
+C_OFF=""
+if [ -t 1 ]; then
+    C_ON="\033[35m"
+    C_OFF="\033[0m"
+fi
+
+if [ -z "$1" ]; then
+    echo "Please include quoted parameters for grep."
+elif [ "-h" = "$1" ]; then
+    echo "\$1 is a set of parameters for grep (including regex)."
+    echo "\$2 is a path to add to the end of refs/ (i.e. refs/heads)."
+    echo "    - if \$2 is blank, all refs/ are searched (including stash)."
+else
+    GREP_CMD="grep $1"
+    for branch in $(git for-each-ref --format="%(refname)" refs/"$2"); do
+        DATA=$(git ls-tree -r --name-only "$branch" | eval "$GREP_CMD")
+        if [ -n "$DATA" ]; then
+            echo "$C_ON$branch$C_OFF:"
+            echo "$DATA"
+            # add a newline between branches
+            echo ""
+        fi
+    done
+fi

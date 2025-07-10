@@ -15,7 +15,7 @@ fi
 
 if [ -z "$1" ]; then
     echo "No date specified; showing range of 1 week."
-    find . -type f -regex ".*\.[mt][dx]t?" -newermt "$(date --rfc-3339=date -d "1 week ago")" -printf "$C1%T+$C2\t$C3%p$C4\n" | sort -r
+    find . -type f -regex ".*\.[mt][dx]t?" -newermt "$(date --rfc-3339=date -d "1 week ago")" -printf "$C1%T+$C2\t$C3%p$C4\n" | sort
 elif [ "$1" = "-h" ]; then
     echo "Specify a date range in the format 'yyyy-mm-dd'."
 elif [ "$1" = "-e" ] && [ -n "$2" ]; then
@@ -24,9 +24,9 @@ elif [ "$1" = "-e" ] && [ -n "$2" ]; then
 elif [ "$2" = "-e" ] && [ -n "$3" ]; then
     find . -type f -regex ".*\.[mt][dx]t?" -newermt "$1" -printf "$C1%T+$C2\t$C3%p$C4\n" -exec sh -c "$3" \;
 elif [ -z "$2" ]; then
-    find . -type f -regex ".*\.[mt][dx]t?" -newermt "$1" -printf "$C1%T+$C2\t$C3%p$C4\n" | sort -r
+    find . -type f -regex ".*\.[mt][dx]t?" -newermt "$1" -printf "$C1%T+$C2\t$C3%p$C4\n" | sort
 elif [ "$3" = "-e" ] && [ -n "$4" ]; then
     find . -type f -regex ".*\.[mt][dx]t?" -newermt "$1" ! -newermt "$2" -printf "$C1%T+$C2\t$C3%p$C4\n" -exec sh -c "$4" \;
 else
-    find . -type f -regex ".*\.[mt][dx]t?" -newermt "$1" ! -newermt "$2" -printf "$C1%T+$C2\t$C3%p$C4\n" | sort -r
+    find . -type f -regex ".*\.[mt][dx]t?" -newermt "$1" ! -newermt "$2" -printf "$C1%T+$C2\t$C3%p$C4\n" | sort
 fi
