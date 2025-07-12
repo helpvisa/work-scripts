@@ -8,20 +8,65 @@ if [ -t 1 ]; then
     C2="\033[0m"
 fi
 
+# use as a placeholder; if non-null, we populate *_CMD
+POPULATE_EXEC=""
+POPULATE_INAME=""
+POPULATE_REGEX=""
+
+EXEC_CMD=""
+INAME_CMD=""
+REGEX_CMD=""
+
+SORT_CMD="| sort"
+DATE_ONE=""
+DATE_TWO=""
+
 if [ -z "$1" ]; then
     echo "No date specified; showing range of 1 week."
-    find . -type f -newermt "$(date --rfc-3339=date -d "1 week ago")" -printf "$C1%T+$C2\t%p\n" | sort
-elif [ "$1" = "-h" ]; then
-    echo "Specify a date range in the format 'yyyy-mm-dd'."
-elif [ "$1" = "-e" ] && [ -n "$2" ]; then
-    echo "No date specified; showing range of 1 week."
-    find . -type f -newermt "$(date --rfc-3339=date -d "1 week ago")" -printf "$C1%T+$C2\t%p\n" -exec sh -c "$2" \;
-elif [ "$2" = "-e" ] && [ -n "$3" ]; then
-    find . -type f -newermt "$1" -printf "$C1%T+$C2\t%p\n" -exec sh -c "$3" \;
-elif [ -z "$2" ]; then
-    find . -type f -newermt "$1" -printf "$C1%T+$C2\t%p\n" | sort
-elif [ "$3" = "-e" ] && [ -n "$4" ]; then
-    find . -type f -newermt "$1" ! -newermt "$2" -printf "$C1%T+$C2\t%p\n" -exec sh -c "$4" \;
+    DATE_ONE="-newermt \"\$(date --rfc-3339=date -d \"1 week ago\")\""
+    BASE_CMD="find . -type f $DATE_ONE $DATE_TWO -printf \"$C1%T+$C2\t%p\n\""
+    eval "$BASE_CMD $SORT_CMD"
 else
-    find . -type f -newermt "$1" ! -newermt "$2" -printf "$C1%T+$C2\t%p\n" | sort
+    for ARG in "$@"; do
+        if [ "$ARG" = "-h" ]; then
+            echo "Specify a date in the format 'yyyy-mm-dd'."
+            echo "Specifying two dates constitutes a range."
+            echo "Specifying a single date creates a range from then to today."
+            echo ""
+            echo "Flags:"
+            echo "  -h -> shows this message"
+            echo "  -i -> find with iname"
+            echo "  -r -> find with regex"
+            echo "  -e -> execute with find (sub '{}' for filename)"
+            exit
+        elif [ "$POPULATE_EXEC" = "yessir" ]; then
+            EXEC_CMD="-exec sh -c \"$ARG\" \;"
+            # disable sort; will ruin the output otherwise
+            SORT_CMD=""
+            POPULATE_EXEC=""
+        elif [ "$POPULATE_INAME" = "yessir" ]; then
+            INAME_CMD="-iname \"$ARG\""
+            POPULATE_INAME=""
+        elif [ "$POPULATE_REGEX" = "yessir" ]; then
+            REGEX_CMD="-regex \"$ARG\""
+            POPULATE_REGEX=""
+        elif [ "$ARG" = "-e" ]; then
+            # we will populate *_CMD on next loop now that this flag is set
+            POPULATE_EXEC="yessir"
+        elif [ "$ARG" = "-i" ]; then
+            POPULATE_INAME="yessir"
+        elif [ "$ARG" = "-r" ]; then
+            POPULATE_REGEX="yessir"
+        elif [ -z "$DATE_ONE" ]; then
+            DATE_ONE="-newermt $ARG"
+        elif [ -z "$DATE_TWO" ]; then
+            DATE_TWO="! -newermt $ARG"
+        fi
+    done
+    if [ -z "$DATE_ONE" ]; then
+        echo "No date specified; showing range of 1 week."
+        DATE_ONE="-newermt \"\$(date --rfc-3339=date -d \"1 week ago\")\""
+    fi
+    BASE_CMD="find . -type f $INAME_CMD $REGEX_CMD $DATE_ONE $DATE_TWO -printf \"$C1%T+$C2\t%p\n\" $EXEC_CMD"
+    eval "$BASE_CMD $SORT_CMD"
 fi
