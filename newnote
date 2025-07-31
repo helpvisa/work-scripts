@@ -2,11 +2,11 @@
 
 cd "/mnt/c/Users/dbrack01/OneDrive - Teranet/Documents/Notes"
 DIRECTORY="$(pwd)$(find . -type d | fzf --prompt "Folder? > " | tail -c +2)"
-FILENAME=$(echo "$(date +%a-%b%d-%Y-%H_%M_%S).md" | fzf --prompt "Name? > ")
+FILENAME=$(echo "$(date +%a-%b%d-%Y-%H_%M_%S).md" | fzf --bind=enter:replace-query+print-query --prompt "Name? > ")
 FILEPATH="$DIRECTORY/$FILENAME"
 # now open editor
 if [ -n "$DIRECTORY" ] && [ -n "$FILENAME" ]; then
-    /usr/local/bin/emacsclient -c "$FILEPATH" || $EDITOR "$FILEPATH"
+    /usr/local/bin/emacsclient -nw "$FILEPATH" || $EDITOR "$FILEPATH"
 else
     echo "No name provided."
 fi
